@@ -10,7 +10,7 @@ Please [consult the Wiki on the kraken_docs repo](https://github.com/krakenrf/kr
 
 ## Raspberry Pi 4/5 and Orange Pi 5B Image QUICKSTART
 
-**Download Latest Images From :** https://mega.nz/folder/8T1jiIzR#_1Ujs4Eoy0wdRib9eHCVSg
+**Download Latest Images From :** https://www.dropbox.com/scl/fo/uf6uosh31syxwt8m32pl4/ANeDj_epfa_PRliPPqCDSoU?rlkey=ovo459p6aiwio785d0h56lj7h&e=1&dl=0
 
 **Alternative Download:** https://drive.google.com/drive/folders/14NuCOGM1Fh1QypDNMngXEepKYRBsG--B?usp=sharing
 
