@@ -10,14 +10,9 @@ SHARED_FOLDER_DAQ_LOGS="${SHARED_FOLDER}/logs/heimdall_daq_fw"
 SETTINGS_PATH="${SHARED_FOLDER}/settings.json"
 
 declare -A STATE_TO_MESSAGE=(["true"]="ENABLED" ["false"]="DISABLED")
-REMOTE_CONTROL="false"
-SERVER_BIN="sudo php -S ${IPADDR}:${IPPORT} -t"
-if [ -f "${SETTINGS_PATH}" ] && [ -x "$(command -v miniserve)" ] && [ -x "$(command -v jq)" ]; then
-    REMOTE_CONTROL=$(jq .en_remote_control ${SETTINGS_PATH})
-    if [ "$REMOTE_CONTROL" = "true" ]; then
-        SERVER_BIN="miniserve -i ${IPADDR} -p ${IPPORT} -P -u -o"
-    fi
-fi
+REMOTE_CONTROL="true"
+
+SERVER_BIN="miniserve -i ${IPADDR} -p ${IPPORT} -P -u -o"
 echo
 echo "Remote Control is ${STATE_TO_MESSAGE[$REMOTE_CONTROL]}"
 if [ $REMOTE_CONTROL = "false" ]; then
@@ -26,7 +21,8 @@ if [ $REMOTE_CONTROL = "false" ]; then
     echo "Finally, apply settings by restarting the software."
 fi
 echo
-
+echo "Script started by user: $USER"
+ 
 echo "Starting KrakenSDR Direction Finder"
 
 # Create folder, if it does not exists, that will contain data shared with clients
@@ -47,8 +43,9 @@ python3 _ui/_web_interface/app.py >"${SHARED_FOLDER_DOA_LOGS}/ui.log" 2>&1 &
 
 # Start webserver to share output and settings with clients
 echo "Data Out Server Running at $IPADDR:$IPPORT"
+# $SERVER_BIN "${SHARED_FOLDER}" 2>/dev/null &
 # $SERVER_BIN "${SHARED_FOLDER}" 2> server.log &
-$SERVER_BIN "${SHARED_FOLDER}" 2>/dev/null &
+$SERVER_BIN "${SHARED_FOLDER}"
 
 # Start nodejs server for KrakenSDR Pro App
 #node _nodejs/index.js 1>/dev/null 2>/dev/null &

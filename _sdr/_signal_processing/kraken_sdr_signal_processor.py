@@ -96,6 +96,8 @@ class SignalProcessor(threading.Thread):
         self.root_path = root_path
         doa_res_file_path = os.path.join(shared_path, "DOA_value.html")
         self.DOA_res_fd = open(doa_res_file_path, "w+")
+        doa_res_json_file_path = os.path.join(shared_path, "doa.json")
+        self.DOA_res_json_fd = open(doa_res_json_file_path, "w+")
 
         self.module_receiver = module_receiver
         self.data_que = data_que
@@ -753,6 +755,7 @@ class SignalProcessor(threading.Thread):
                         # Do Kraken App first as currently its the only one supporting multi-vfo out
                         if self.DOA_data_format != "Kerberos App":
                             message = ""
+                            messages = []
                             for j, freq in enumerate(self.freq_list):
                                 # KrakenSDR Android App Output
                                 sub_message = ""
@@ -761,9 +764,31 @@ class SignalProcessor(threading.Thread):
                                 sub_message += f"{self.latitude}, {self.longitude}, {self.heading}, {self.heading}, "
                                 sub_message += "GPS, R, R, R, R"  # Reserve 6 entries for other things # NOTE: Second heading is reserved for GPS heading / compass heading differentiation
 
+                                message_dict = {
+                                    "timestamp": str(self.timestamp),
+                                    "theta": str(360 - self.theta_0_list[j]),
+                                    "confidence": str(self.confidence_list[j]),
+                                    "max_power_level": str(self.max_power_level_list[j]),
+                                    "frequency": str(freq),
+                                    "DOA_ant_alignment": str(self.DOA_ant_alignment),
+                                    "latency": str(self.latency),
+                                    "station_id": str(self.station_id),
+                                    "latitude": str(self.latitude),
+                                    "longitude": str(self.longitude),
+                                    "heading": str(self.heading),
+                                    "gps_heading": str(self.heading),  # second heading reserved
+                                    "GPS": "GPS",
+                                    "reserved_fields": ["R", "R", "R", "R"],  # Placeholder for reserved fields
+                                    "doa_result_log": []
+                                }
+
                                 doa_result_log = self.doa_result_log_list[j] + np.abs(
                                     np.min(self.doa_result_log_list[j])
                                 )
+                                message_dict["doa_result_log"] = {
+                                    str(i): str(round(val, 2)) for i, val in enumerate(doa_result_log)
+                                }
+
                                 for i in range(len(doa_result_log)):
                                     sub_message += ", " + "{:.2f}".format(doa_result_log[i])
 
@@ -778,10 +803,14 @@ class SignalProcessor(threading.Thread):
                                         self.data_record_fd.write(sub_message)
 
                                 message += sub_message
+                                messages.append(message_dict)
 
                             self.DOA_res_fd.seek(0)
                             self.DOA_res_fd.write(message)
                             self.DOA_res_fd.truncate()
+                            self.DOA_res_json_fd.seek(0)
+                            self.DOA_res_json_fd.write(json.dumps(messages, indent=2))
+                            self.DOA_res_json_fd.truncate()
                         elif self.DOA_data_format == "Kerberos App":
                             self.wr_kerberos(
                                 DOA_str,
