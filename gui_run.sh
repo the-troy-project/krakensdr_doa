@@ -12,7 +12,7 @@ SETTINGS_PATH="${SHARED_FOLDER}/settings.json"
 declare -A STATE_TO_MESSAGE=(["true"]="ENABLED" ["false"]="DISABLED")
 REMOTE_CONTROL="true"
 
-SERVER_BIN="miniserve -i ${IPADDR} -p ${IPPORT} -P -u -o"
+SERVER_BIN="miniserve -i ${IPADDR} -p ${IPPORT} -P -u -o=overwrite --"
 echo
 echo "Remote Control is ${STATE_TO_MESSAGE[$REMOTE_CONTROL]}"
 if [ $REMOTE_CONTROL = "false" ]; then
