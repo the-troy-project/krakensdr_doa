@@ -1268,7 +1268,8 @@ class SignalProcessor(threading.Thread):
                 kwds={"url": "http://127.0.0.1:8001/doa_data", "json": jsonDict},
             )
         except requests.exceptions.RequestException as e:
-            self.logger.error(f"Error while posting to local websocket server: {e}")
+            self.logger.error(f"Error while posting to local data push server server: {e}")
+            
 
     def update_recording_filename(self, filename):
         self.data_record_fd.close()
