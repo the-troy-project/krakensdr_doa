@@ -811,6 +811,7 @@ class SignalProcessor(threading.Thread):
                             self.DOA_res_json_fd.seek(0)
                             self.DOA_res_json_fd.write(json.dumps(messages, indent=2))
                             self.DOA_res_json_fd.truncate()
+                            self.post_doa_data(messages)
                         elif self.DOA_data_format == "Kerberos App":
                             self.wr_kerberos(
                                 DOA_str,
@@ -1257,6 +1258,15 @@ class SignalProcessor(threading.Thread):
                 kwds={"url": "http://127.0.0.1:8042/doapost", "json": jsonDict},
             )
             # r = requests.post('http://127.0.0.1:8042/doapost', json=jsonDict)
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Error while posting to local websocket server: {e}")
+
+    def post_doa_data(self, jsonDict):
+        try:
+            self.pool.apply_async(
+                requests.post,
+                kwds={"url": "http://127.0.0.1:8001/doa_data", "json": jsonDict},
+            )
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Error while posting to local websocket server: {e}")
 
